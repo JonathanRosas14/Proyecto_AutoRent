@@ -1,0 +1,41 @@
+services:
+  backend:
+    build: ./Backend
+    container_name: backend_project
+    ports:
+      - "3000:3000"
+    env_file: ./Backend/.env
+    volumes:
+      - ./Backend:/app
+      - /app//node_modules
+    command: npm run dev
+    depends_on:
+      - db
+  frontend:
+    build: ./Frontend
+    container_name: frontend_project
+    ports: 
+      - "5173:5173"
+    env_file: ./Frontend/.env
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host
+    depends_on:
+      - backend
+  
+  db:
+    image: mysql
+    container_name: basededatos_project
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      MYSQL_DATABASE: AutoRent
+
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+
