@@ -10,7 +10,7 @@
       </div>
       <div class="header-right">
         <p class="login-text">
-          Already have an account? <router-link to="/login">Log In</router-link> 
+          Already have an account? <router-link to="/login">Log In</router-link>
         </p>
       </div>
     </header>
@@ -22,19 +22,29 @@
 
       <!-- Formulario -->
       <form @submit.prevent="handleRegister">
-        <!-- Name -->
+        <!--Mensaje de error-->
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+        
+        <!--Mensaje de exito-->
+        <div v-if="successMessage" class="success-message">
+          {{ successMessage }}
+        </div>
+
+        <!-- Nombre -->
         <div class="form-group">
           <label for="name">Full Name</label>
-          <input 
+          <input
             type="text"
             id="name"
             v-model="name"
             placeholder="Enter your full name"
             required
-          >
+          />
         </div>
 
-        <!-- Email -->
+        <!--correo-->
         <div class="form-group">
           <label for="email">Email Address</label>
           <input
@@ -45,8 +55,7 @@
             required
           />
         </div>
-
-        <!-- Password -->
+        <!--Contraseña-->
         <div class="form-group">
           <label for="password">Password</label>
           <input
@@ -57,8 +66,7 @@
             required
           />
         </div>
-
-        <!-- Confirm Password -->
+        <!--Confirmacion de contraseña-->
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
           <input
@@ -69,36 +77,77 @@
             required
           />
         </div>
-
-        <!-- Botón -->
-        <button type="submit" class="register-btn">Register</button>
+        <!--Boton-->
+        <button type="submit" class="register-btn" :disabled="loading">
+          {{ loading ? 'Registando...' : 'Register' }}
+        </button>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const name = ref('')
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('')
+const confirmPassword = ref ('')
+const loading = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
-const handleRegister = () => {
-  if (password.value !== confirmPassword.value) {
-    alert('Las contraseñas no coinciden')
+const handleRegister = async () =>{
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  // Validar que las contraseñas coinceidan
+  if (password.value !== confirmPassword.value){
+    errorMessage.value = 'las contraseñas no coinceden'
     return
   }
-  
-  console.log('Register:', {
-    name: name.value,
-    email: email.value,
-    password: password.value
-  })
-  
-  alert('Registrando usuario...')
+  if (password.value.length < 6){
+    errorMessage.value = 'la contraseña debe tener al menos 6 caracteres'
+    return
+  }
+
+
+  loading.value = true
+
+  try {
+    const response = await fetch('http://localhost:3000/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+      },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+      })
+    })
+
+    const data = await response.json()
+
+    if (data.success){
+      successMessage.value = 'Registro exitoso! Regirigiendo al login'
+      setTimeout(()=>{
+        router.push('/login')
+      }, 2000)
+    } else {
+      errorMessage.value = data.message
+    }
+
+  } catch (error){
+    console.error('Error al registrar:', error)
+    errorMessage.value = 'Error al conectar con el servidor'
+  } finally {
+    loading.value = false
+  }
 }
+
 </script>
 
 <style scoped>
@@ -114,7 +163,6 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 5px 0;
-
 }
 
 /* Logo */
@@ -201,6 +249,26 @@ h2 {
   margin-bottom: 20px;
 }
 
+.error-message {
+  background: #fee2e2;
+  color:  #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border:  1px solid #fecaca;
+  margin-bottom:  20px;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #059669;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid #a7f3d0;
+  margin-bottom: 20px;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
@@ -239,10 +307,15 @@ input::placeholder {
   font-weight: 600;
   cursor: pointer;
   margin-top: 10px;
+  transition: all 0.2s;
 }
 
 .register-btn:hover {
   background: #c23e39;
+}
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor:  not-allowed;
 }
 
 /* Responsive */
@@ -252,11 +325,11 @@ input::placeholder {
     gap: 20px;
     text-align: center;
   }
-  
+
   .form-wrapper {
     padding: 40px 25px;
   }
-  
+
   h2 {
     font-size: 28px;
   }

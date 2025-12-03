@@ -2,10 +2,13 @@
   <div class="login-container">
     <!-- Lado izquierdo - Imagen -->
     <div class="left-side">
-      <img src="../assets/login-card.png" alt="Auto en carretera">
+      <img src="../assets/login-card.png" alt="Auto en carretera" />
       <div class="text-overlay">
         <h1>Welcome Back</h1>
-        <p>Log in to manage your car rental reservations and hit the road on your next adventure.</p>
+        <p>
+          Log in to manage your car rental reservations and hit the road on your
+          next adventure.
+        </p>
       </div>
     </div>
 
@@ -14,8 +17,8 @@
       <div class="form-box">
         <!-- Logo -->
         <div class="logo">
-          <div class="logo-icon"> 
-            <img src="../assets/logo.png" alt="Logo">
+          <div class="logo-icon">
+            <img src="../assets/logo.png" alt="Logo" />
           </div>
           <span>AutoRent</span>
         </div>
@@ -29,12 +32,12 @@
           <!-- Email -->
           <div class="form-group">
             <label>Email Address</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               v-model="email"
               placeholder="Enter your email"
               required
-            >
+            />
           </div>
 
           <!-- Password -->
@@ -43,21 +46,27 @@
               <label>Password</label>
               <a href="#" class="forgot">Forgot Password?</a>
             </div>
-            <input 
-              type="password" 
+            <input
+              type="password"
               v-model="password"
               placeholder="Enter your password"
               required
-            >
+            />
           </div>
 
           <!-- Botón -->
           <button type="submit" class="login-btn">Login</button>
         </form>
 
+        <!-- Mensaje de error -->
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
         <!-- Link registro -->
         <p class="signup-text">
-          Don't have an account? <router-link to="/register">Sign Up</router-link>
+          Don't have an account?
+          <router-link to="/register">Sign Up</router-link>
         </p>
       </div>
     </div>
@@ -65,15 +74,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const email = ref('')
-const password = ref('')
+const router = useRouter();
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
 
-const handleLogin = () => {
-  console.log('Login:', email.value, password.value)
-  alert('Iniciando sesión...')
-}
+const handleLogin = async () => {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const response = await fetch("http://localhost:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Login exitoso! Bienvenido " + data.user.name);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      router.push("/");
+    } else {
+      errorMessage.value = data.message;
+    }
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
+    errorMessage.value = "Error al conectar con el servidor";
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -215,6 +256,16 @@ input::placeholder {
   color: #9ca3af;
 }
 
+.error-message {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid #fecaca;
+  margin-top: 15px;
+}
+
 /* Botón Login */
 .login-btn {
   width: 100%;
@@ -255,7 +306,7 @@ input::placeholder {
   .left-side {
     display: none;
   }
-  
+
   .right-side {
     flex: 1;
   }
