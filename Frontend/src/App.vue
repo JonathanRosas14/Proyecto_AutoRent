@@ -18,7 +18,11 @@
 
       <!-- HERO SECTION -->
       <section class="hero-section">
-        <img src="./assets/Car_image1.png" alt="Auto en carretera" class="hero-image" />
+        <img
+          src="./assets/Car_image1.png"
+          alt="Auto en carretera"
+          class="hero-image"
+        />
         <div class="hero-overlay">
           <h1>Find Your Perfect Ride</h1>
           <p>Wide Selection, Competitive Prices, Easy Booking.</p>
@@ -30,22 +34,22 @@
         <h2>Explore Our Fleet</h2>
         <div class="fleet-grid">
           <div class="fleet-card">
-            <img src="./assets/Car_image2.png" alt="SUVs">
+            <img src="./assets/Car_image2.png" alt="SUVs" />
             <h3>SUVs</h3>
             <a href="#" class="view-all">View All</a>
           </div>
           <div class="fleet-card">
-            <img src="./assets/Car_image3.png" alt="Sedans">
+            <img src="./assets/Car_image3.png" alt="Sedans" />
             <h3>Sedans</h3>
             <a href="#" class="view-all">View All</a>
           </div>
           <div class="fleet-card">
-            <img src="./assets/Car_image4.png" alt="Luxury">
+            <img src="./assets/Car_image4.png" alt="Luxury" />
             <h3>Luxury</h3>
             <a href="#" class="view-all">View All</a>
           </div>
           <div class="fleet-card">
-            <img src="./assets/Car_image5.png" alt="Electric">
+            <img src="./assets/Car_image5.png" alt="Electric" />
             <h3>Electric</h3>
             <a href="#" class="view-all">View All</a>
           </div>
@@ -54,7 +58,11 @@
 
       <!-- PROMO BANNER -->
       <section class="promo-section">
-        <img src="./assets/Car_image6.png" alt="Weekend deal" class="promo-image" />
+        <img
+          src="./assets/Car_image6.png"
+          alt="Weekend deal"
+          class="promo-image"
+        />
         <div class="promo-overlay">
           <h2>Save 20% on Weekend Rentals</h2>
           <p>This Month's Special Deal</p>
@@ -67,34 +75,52 @@
         <div class="contact-container">
           <div class="contact-info">
             <h3>Contact Information</h3>
-            <p>Have questions or need assistance? Reach out to us. We're here to help you find the perfect vehicle for your needs.</p>
+            <p>
+              Have questions or need assistance? Reach out to us. We're here to
+              help you find the perfect vehicle for your needs.
+            </p>
             <div class="info-item">
-              <span class="icon">📍</span>
+              <img src="./assets/location.png" alt="location" />
               <span>123 Rental Ave, Car City, ST 12345</span>
             </div>
             <div class="info-item">
-              <span class="icon">📞</span>
+              <img src="./assets/phone.png" alt="phone" />
               <span>(123) 456-7890</span>
             </div>
             <div class="info-item">
-              <span class="icon">✉️</span>
+              <img src="./assets/mail.png" alt="mail" />
               <span>support@AutoRent.com</span>
             </div>
           </div>
-          
+
           <div class="contact-form">
             <form @submit.prevent="handleContact">
               <div class="form-group">
                 <label>Name</label>
-                <input type="text" v-model="contactForm.name" placeholder="Your Name" required>
+                <input
+                  type="text"
+                  v-model="contactForm.name"
+                  placeholder="Your Name"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label>Email</label>
-                <input type="email" v-model="contactForm.email" placeholder="you@example.com" required>
+                <input
+                  type="email"
+                  v-model="contactForm.email"
+                  placeholder="you@example.com"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label>Message</label>
-                <textarea v-model="contactForm.message" placeholder="Your message..." rows="4" required></textarea>
+                <textarea
+                  v-model="contactForm.message"
+                  placeholder="Your message..."
+                  rows="4"
+                  required
+                ></textarea>
               </div>
               <button type="submit" class="send-btn">Send Message</button>
             </form>
@@ -112,29 +138,42 @@
               </div>
               <span>AutoRent</span>
             </div>
-            <p>Your journey starts here. Rent the perfect car for any occasion.</p>
+            <p>
+              Your journey starts here. Rent the perfect car for any occasion.
+            </p>
           </div>
-          
+
           <div class="footer-column">
             <h4>Company</h4>
             <a href="#">About Us</a>
             <a href="#">Careers</a>
             <a href="#">Press</a>
           </div>
-          
+
           <div class="footer-column">
             <h4>Support</h4>
             <a href="#">Contact Us</a>
             <a href="#">FAQ</a>
             <a href="#">Terms of Service</a>
           </div>
-          
+
           <div class="footer-column">
             <h4>Follow Us</h4>
             <div class="social-links">
-              <a href="#">🐦 Twitter</a>
-              <a href="#">📘 Facebook</a>
-              <a href="#">📷 Instagram</a>
+              <div class="info-social">
+                <img src="./assets/twitter.png" alt="twitter" />
+                <a href="#">Twitter</a>
+              </div>
+
+              <div class="info-social">
+                <img src="./assets/facebook.png" alt="facebook" />
+                <a href="#">Facebook</a>
+              </div>
+
+              <div class="info-social">
+                <img src="./assets/instagram.png" alt="instagram" />
+                <a href="#">Instagram</a>
+              </div>
             </div>
           </div>
         </div>
@@ -150,23 +189,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 
-const route = useRoute()
-const currentRoute = computed(() => route.path)
+const route = useRoute();
+const currentRoute = computed(() => route.path);
 
 const contactForm = ref({
-  name: '',
-  email: '',
-  message: ''
-})
+  name: "",
+  email: "",
+  message: "",
+});
 
 const handleContact = () => {
-  console.log('Contact form:', contactForm.value)
-  alert('Message sent! We will contact you soon.')
-  contactForm.value = { name: '', email: '', message: '' }
-}
+  console.log("Contact form:", contactForm.value);
+  alert("Message sent! We will contact you soon.");
+  contactForm.value = { name: "", email: "", message: "" };
+};
 </script>
 
 <style scoped>
@@ -179,7 +218,8 @@ const handleContact = () => {
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -201,7 +241,7 @@ header {
   align-items: center;
   padding: 20px 60px;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -293,7 +333,7 @@ header {
 }
 
 .hero-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -304,8 +344,8 @@ header {
 
 .hero-image {
   width: 100%;
-  height: 100%;        
-  object-fit: cover; 
+  height: 100%;
+  object-fit: cover;
   filter: brightness(0.9);
 }
 
@@ -358,7 +398,7 @@ header {
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
 }
 
@@ -445,7 +485,7 @@ header {
   background: white;
   padding: 50px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .contact-info h3 {
@@ -466,6 +506,12 @@ header {
   gap: 15px;
   margin-bottom: 20px;
   color: #4b5563;
+}
+
+.info-item img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .icon {
@@ -514,7 +560,7 @@ header {
   background: #c23e39;
 }
 
-/* FOOTER */  
+/* FOOTER */
 footer {
   background: rgb(255, 255, 255);
   color: black;
@@ -579,17 +625,32 @@ footer {
   border-top: 1px solid #374151;
   color: #9ca3af;
 }
+.info-social {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-social img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.info-social a {
+  margin-bottom: 0;
+}
 
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .fleet-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .contact-container {
     grid-template-columns: 1fr;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr 1fr;
   }
@@ -599,23 +660,23 @@ footer {
   header {
     padding: 15px 30px;
   }
-  
+
   .nav-links {
     display: none;
   }
-  
+
   .hero-overlay h1 {
     font-size: 36px;
   }
-  
+
   .fleet-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .promo-section {
     margin: 20px 30px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
   }

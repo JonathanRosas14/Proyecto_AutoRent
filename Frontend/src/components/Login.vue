@@ -75,47 +75,34 @@
 
 <script setup>
 import { ref } from "vue";
+import axios from "axios";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
 const email = ref("");
 const password = ref("");
-const loading = ref(false);
 const errorMessage = ref("");
+const router = useRouter();
 
 const handleLogin = async () => {
-  loading.value = true;
-  errorMessage.value = "";
-
   try {
-    const response = await fetch("http://localhost:3000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value,
-      }),
+    const response = await axios.post("http://localhost:3000/api/login", {
+      email: email.value,
+      password: password.value,
     });
 
-    const data = await response.json();
+    // Guardar usuario en localStorage
+    localStorage.setItem("user", JSON.stringify(response.data.user));
 
-    if (data.success) {
-      alert("Login exitoso! Bienvenido " + data.user.name);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      router.push("/");
-    } else {
-      errorMessage.value = data.message;
-    }
+    // Redireccionar al dashboard
+    router.push("/dashboard");
+
   } catch (error) {
-    console.error("Error al iniciar sesión:", error);
-    errorMessage.value = "Error al conectar con el servidor";
-  } finally {
-    loading.value = false;
+    errorMessage.value =
+      error.response?.data?.message || "Error al iniciar sesión";
   }
 };
 </script>
+
 
 <style scoped>
 .login-container {
