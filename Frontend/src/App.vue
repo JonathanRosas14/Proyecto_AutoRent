@@ -36,22 +36,22 @@
           <div class="fleet-card">
             <img src="./assets/Car_image2.png" alt="SUVs" />
             <h3>SUVs</h3>
-            <a href="#" class="view-all">View All</a>
+            <router-link to="/login" class="view-all">View All</router-link>
           </div>
           <div class="fleet-card">
             <img src="./assets/Car_image3.png" alt="Sedans" />
             <h3>Sedans</h3>
-            <a href="#" class="view-all">View All</a>
+            <router-link to="/login" class="view-all">View All</router-link>
           </div>
           <div class="fleet-card">
             <img src="./assets/Car_image4.png" alt="Luxury" />
             <h3>Luxury</h3>
-            <a href="#" class="view-all">View All</a>
+            <router-link to="/login" class="view-all">View All</router-link>
           </div>
           <div class="fleet-card">
             <img src="./assets/Car_image5.png" alt="Electric" />
             <h3>Electric</h3>
-            <a href="#" class="view-all">View All</a>
+            <router-link to="/login" class="view-all">View All</router-link>
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@
         <div class="logo-icon">
           <img src="../assets/logo.png" alt="Logo" />
         </div>
-        <span>AutoRent</span>
+        <router-link to="/"><span>AutoRent</span></router-link>
       </div>
       <div class="header-right">
         <p class="login-text">

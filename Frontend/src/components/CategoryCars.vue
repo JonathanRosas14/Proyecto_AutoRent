@@ -1,6 +1,7 @@
 <template>
   <div class="page-view">
-    <h1>Support</h1>
+    <button @click="goBack" class="back-btn">← Back</button>
+    <h1>Categories cars</h1>
     <p>Proximamente</p>
   </div>
 </template>

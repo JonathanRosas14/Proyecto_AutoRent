@@ -28,19 +28,24 @@ const routes = [
         component: () => import("../components/Dashboard.vue"),
       },
       {
-        path:"",
+        path:"/reservation",
         name:"Reservations",
         component: () => import("../components/Reservations.vue")
       },
       {
-        path: "",
+        path: "/settings",
         name: "Settings",
         component: () => import("../components/Settings.vue")
       },
       {
-        path: "",
+        path: "/support",
         name: "Support",
         component: () => import ("../components/Support.vue")
+      },
+      {
+        path: "/category/:type",
+        name: "Category",
+        component: () => import ("../components/CategoryCars.vue")
       }
 
     ],

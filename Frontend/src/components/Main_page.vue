@@ -111,7 +111,7 @@ const handleLogout = () => {
 
 /* SIDEBAR - Navegación lateral fija */
 .sidebar {
-  width: 20%;
+  width: 280px;
   background: white;
   border-right: 1px solid #e5e7eb;
   display: flex;
@@ -250,7 +250,7 @@ const handleLogout = () => {
 }
 
 .logout-btn {
-  width: 100%;
+  width: 95%;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -275,7 +275,14 @@ const handleLogout = () => {
   flex-shrink: 0;
 }
 
-
+.main-content{
+  margin-left: 280px;
+  padding: 0 40px;
+  flex: 1;
+  min-height: 100vh;
+  overflow-y: auto;
+  background: #f9fafb;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
