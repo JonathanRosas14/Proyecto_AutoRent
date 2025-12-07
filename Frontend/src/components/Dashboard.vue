@@ -67,7 +67,6 @@
 <style scoped>
 .dashboard-view {
   width: 100%;
-  padding: 32px;
   background: #f9fafb;
   min-height: 100vh;
 }

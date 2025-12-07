@@ -109,15 +109,18 @@ const handleLogout = () => {
   overflow: hidden;
 }
 
-/* SIDEBAR - Navegación lateral fija */
 .sidebar {
   width: 280px;
   background: white;
   border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  position: absolute;
-  height: 100%;
+  position: fixed; 
+  height: 100vh;        /* ← FIX */
+  left: 0;
+  top: 0;
+  padding: 24px 16px;
+  overflow-y: auto;  
 }
 
 /* Logo */
@@ -275,13 +278,13 @@ const handleLogout = () => {
   flex-shrink: 0;
 }
 
-.main-content{
+.main-content {
   margin-left: 280px;
-  padding: 0 40px;
-  flex: 1;
+  padding: 0 60px !important;   
+  width: 100%;      
   min-height: 100vh;
-  overflow-y: auto;
   background: #f9fafb;
+  overflow-y: auto;
 }
 
 /* Responsive */

@@ -26,7 +26,7 @@
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
-        
+
         <!--Mensaje de exito-->
         <div v-if="successMessage" class="success-message">
           {{ successMessage }}
@@ -40,6 +40,17 @@
             id="name"
             v-model="name"
             placeholder="Enter your full name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input
+            type="number"
+            id="phoneNumber"
+            v-model="phoneNumber"
+            placeholder="Enter your phone number"
             required
           />
         </div>
@@ -79,7 +90,7 @@
         </div>
         <!--Boton-->
         <button type="submit" class="register-btn" :disabled="loading">
-          {{ loading ? 'Registando...' : 'Register' }}
+          {{ loading ? "Registando..." : "Register" }}
         </button>
       </form>
     </div>
@@ -87,67 +98,66 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref ('')
-const loading = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+const router = useRouter();
+const name = ref("");
+const email = ref("");
+const phoneNumber = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
+const successMessage = ref("");
 
-const handleRegister = async () =>{
-  errorMessage.value = ''
-  successMessage.value = ''
+const handleRegister = async () => {
+  errorMessage.value = "";
+  successMessage.value = "";
 
   // Validar que las contraseñas coinceidan
-  if (password.value !== confirmPassword.value){
-    errorMessage.value = 'las contraseñas no coinceden'
-    return
+  if (password.value !== confirmPassword.value) {
+    errorMessage.value = "las contraseñas no coinceden";
+    return;
   }
-  if (password.value.length < 6){
-    errorMessage.value = 'la contraseña debe tener al menos 6 caracteres'
-    return
+  if (password.value.length < 6) {
+    errorMessage.value = "la contraseña debe tener al menos 6 caracteres";
+    return;
   }
 
-
-  loading.value = true
+  loading.value = true;
 
   try {
-    const response = await fetch('http://localhost:3000/api/register', {
-      method: 'POST',
+    const response = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
       headers: {
-        'Content-Type':'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         name: name.value,
         email: email.value,
         password: password.value,
-      })
-    })
+        phoneNumber: phoneNumber.value,
+      }),
+    });
 
-    const data = await response.json()
+    const data = await response.json();
 
-    if (data.success){
-      successMessage.value = 'Registro exitoso! Regirigiendo al login'
-      setTimeout(()=>{
-        router.push('/login')
-      }, 2000)
+    if (data.success) {
+      successMessage.value = "Registro exitoso! Regirigiendo al login";
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } else {
-      errorMessage.value = data.message
+      errorMessage.value = data.message;
     }
-
-  } catch (error){
-    console.error('Error al registrar:', error)
-    errorMessage.value = 'Error al conectar con el servidor'
+  } catch (error) {
+    console.error("Error al registrar:", error);
+    errorMessage.value = "Error al conectar con el servidor";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
-
+};
 </script>
 
 <style scoped>
@@ -251,12 +261,12 @@ h2 {
 
 .error-message {
   background: #fee2e2;
-  color:  #dc2626;
+  color: #dc2626;
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
-  border:  1px solid #fecaca;
-  margin-bottom:  20px;
+  border: 1px solid #fecaca;
+  margin-bottom: 20px;
 }
 
 .success-message {
@@ -315,7 +325,7 @@ input::placeholder {
 }
 .register-btn:disabled {
   opacity: 0.6;
-  cursor:  not-allowed;
+  cursor: not-allowed;
 }
 
 /* Responsive */

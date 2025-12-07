@@ -14,10 +14,10 @@ app.use(cors());
 //ruta para registrar los usuarios
 app.post("/api/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phoneNumber, password } = req.body;
 
     //validar que todos los campos esten llenos
-    if (!name || !email || !password) {
+    if (!name || !email || !phoneNumber || !password) {
       return res.status(400).json({
         success: false,
         message: "Todos los campos son requeridos",
@@ -41,8 +41,8 @@ app.post("/api/register", async (req, res) => {
 
     //inserta los datos cuando se registran
     const [result] = await db.query(
-      "INSERT INTO Users (name, email, password, creation_date) VALUES (?, ?, ?, NOW())",
-      [name, email, hashedPassword]
+      "INSERT INTO Users (name, email, phoneNumber ,password, creation_date) VALUES (?, ?, ?, ?, NOW())",
+      [name, email, phoneNumber,hashedPassword]
     );
     res.status(201).json({
       success: true,
@@ -51,6 +51,7 @@ app.post("/api/register", async (req, res) => {
         id: result.insertId,
         name,
         email,
+        phoneNumber,
       },
     });
 
@@ -118,6 +119,140 @@ app.post("/api/login", async (req, res) => {
       success: false,
       message: "Error en el login",
       error: error.message,
+    });
+  }
+});
+
+//ruta para actualizar el usuario
+
+// Agregar después de la ruta de login en tu app.js
+
+// ========== RUTA PARA ACTUALIZAR PERFIL DE USUARIO ==========
+app.put("/api/user/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phoneNumber, currentPassword, newPassword } = req.body;
+
+    // Validar que al menos un campo venga para actualizar
+    if (!name && !email && !phoneNumber && !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Debe proporcionar al menos un campo para actualizar"
+      });
+    }
+
+    // Buscar el usuario
+    const [users] = await db.query(
+      "SELECT * FROM Users WHERE id_user = ?",
+      [id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado"
+      });
+    }
+
+    const user = users[0];
+
+    // Si se quiere cambiar la contraseña, validar la actual
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Debe proporcionar la contraseña actual para cambiarla"
+        });
+      }
+
+      const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+      
+      if (!isValidPassword) {
+        return res.status(401).json({
+          success: false,
+          message: "La contraseña actual es incorrecta"
+        });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: "La nueva contraseña debe tener al menos 6 caracteres"
+        });
+      }
+    }
+
+    // Verificar si el email ya existe (si se está cambiando)
+    if (email && email !== user.email) {
+      const [existingEmail] = await db.query(
+        "SELECT * FROM Users WHERE email = ? AND id_user != ?",
+        [email, id]
+      );
+
+      if (existingEmail.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "El email ya está en uso por otro usuario"
+        });
+      }
+    }
+
+    // Construir la query de actualización dinámicamente
+    let updateFields = [];
+    let updateValues = [];
+
+    if (name) {
+      updateFields.push("name = ?");
+      updateValues.push(name);
+    }
+
+    if (email) {
+      updateFields.push("email = ?");
+      updateValues.push(email);
+    }
+
+    if (phoneNumber) {
+      updateFields.push("phoneNumber = ?");
+      updateValues.push(phoneNumber);
+    }
+
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      updateFields.push("password = ?");
+      updateValues.push(hashedPassword);
+    }
+
+    // Agregar el ID al final de los valores
+    updateValues.push(id);
+
+    // Ejecutar la actualización
+    const query = `UPDATE Users SET ${updateFields.join(", ")} WHERE id_user = ?`;
+    await db.query(query, updateValues);
+
+    // Obtener el usuario actualizado
+    const [updatedUser] = await db.query(
+      "SELECT id_user, name, email, phoneNumber, creation_date FROM Users WHERE id_user = ?",
+      [id]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Perfil actualizado correctamente",
+      user: {
+        id: updatedUser[0].id_user,
+        name: updatedUser[0].name,
+        email: updatedUser[0].email,
+        phoneNumber: updatedUser[0].phoneNumber,
+        creation_date: updatedUser[0].creation_date
+      }
+    });
+
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al actualizar el perfil",
+      error: error.message
     });
   }
 });
