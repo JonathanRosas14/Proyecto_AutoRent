@@ -46,6 +46,11 @@ const routes = [
         path: "/category/:type",
         name: "Category",
         component: () => import ("../components/CategoryCars.vue")
+      },
+      {
+        path: "/car/:id",
+        name: "CarDetail",
+        component: () => import ("../components/CarDetail.vue")
       }
 
     ],

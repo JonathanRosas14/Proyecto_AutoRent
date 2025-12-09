@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { db } from "./config/db.js";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import imagesRoutes from "./routes/images.routes.js";
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ app.post("/api/register", async (req, res) => {
     //inserta los datos cuando se registran
     const [result] = await db.query(
       "INSERT INTO Users (name, email, phoneNumber ,password, creation_date) VALUES (?, ?, ?, ?, NOW())",
-      [name, email, phoneNumber,hashedPassword]
+      [name, email, phoneNumber, hashedPassword]
     );
     res.status(201).json({
       success: true,
@@ -80,9 +81,9 @@ app.post("/api/login", async (req, res) => {
       });
     }
     // hace la busqueda del usuario
-    const [users] = await db.query("SELECT * FROM Users WHERE email = ?", 
-      [email]
-    );
+    const [users] = await db.query("SELECT * FROM Users WHERE email = ?", [
+      email,
+    ]);
 
     if (users.length === 0) {
       return res.status(401).json({
@@ -137,20 +138,19 @@ app.put("/api/user/:id", async (req, res) => {
     if (!name && !email && !phoneNumber && !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Debe proporcionar al menos un campo para actualizar"
+        message: "Debe proporcionar al menos un campo para actualizar",
       });
     }
 
     // Buscar el usuario
-    const [users] = await db.query(
-      "SELECT * FROM Users WHERE id_user = ?",
-      [id]
-    );
+    const [users] = await db.query("SELECT * FROM Users WHERE id_user = ?", [
+      id,
+    ]);
 
     if (users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Usuario no encontrado"
+        message: "Usuario no encontrado",
       });
     }
 
@@ -161,23 +161,26 @@ app.put("/api/user/:id", async (req, res) => {
       if (!currentPassword) {
         return res.status(400).json({
           success: false,
-          message: "Debe proporcionar la contraseña actual para cambiarla"
+          message: "Debe proporcionar la contraseña actual para cambiarla",
         });
       }
 
-      const isValidPassword = await bcrypt.compare(currentPassword, user.password);
-      
+      const isValidPassword = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
+
       if (!isValidPassword) {
         return res.status(401).json({
           success: false,
-          message: "La contraseña actual es incorrecta"
+          message: "La contraseña actual es incorrecta",
         });
       }
 
       if (newPassword.length < 6) {
         return res.status(400).json({
           success: false,
-          message: "La nueva contraseña debe tener al menos 6 caracteres"
+          message: "La nueva contraseña debe tener al menos 6 caracteres",
         });
       }
     }
@@ -192,7 +195,7 @@ app.put("/api/user/:id", async (req, res) => {
       if (existingEmail.length > 0) {
         return res.status(400).json({
           success: false,
-          message: "El email ya está en uso por otro usuario"
+          message: "El email ya está en uso por otro usuario",
         });
       }
     }
@@ -226,7 +229,9 @@ app.put("/api/user/:id", async (req, res) => {
     updateValues.push(id);
 
     // Ejecutar la actualización
-    const query = `UPDATE Users SET ${updateFields.join(", ")} WHERE id_user = ?`;
+    const query = `UPDATE Users SET ${updateFields.join(
+      ", "
+    )} WHERE id_user = ?`;
     await db.query(query, updateValues);
 
     // Obtener el usuario actualizado
@@ -243,16 +248,143 @@ app.put("/api/user/:id", async (req, res) => {
         name: updatedUser[0].name,
         email: updatedUser[0].email,
         phoneNumber: updatedUser[0].phoneNumber,
-        creation_date: updatedUser[0].creation_date
-      }
+        creation_date: updatedUser[0].creation_date,
+      },
     });
-
   } catch (error) {
     console.error("Error al actualizar usuario:", error);
     res.status(500).json({
       success: false,
       message: "Error al actualizar el perfil",
-      error: error.message
+      error: error.message,
+    });
+  }
+});
+
+//ruta para obtener la categoria de los carros
+
+app.get("/api/categories", async (req, res) => {
+  try {
+    const [categories] = await db.query("SELECT * FROM Categories");
+    res.status(200).json({
+      success: true,
+      categories,
+    });
+  } catch (error) {
+    console.error("Error al obtener las categorias", error);
+    res.status(500).json({
+      success: false,
+      message: "Erro al obtener las categorias",
+    });
+  }
+});
+
+//ruta de imágenes
+app.use("/api", imagesRoutes);
+
+//ruta pa obtener los carros por categoria
+
+app.get("/api/cars/category/:categoryName", async (req, res) => {
+  try {
+    const { categoryName } = req.params;
+
+    const [cars] = await db.query(
+      `
+      SELECT c.*, cat.name as category_name 
+      FROM Cars c
+      INNER JOIN Categories cat ON c.id_category = cat.id_category
+      WHERE cat.name = ? AND c.status = 'Available'
+      ORDER BY c.price_per_day ASC
+    `,
+      [categoryName]
+    );
+
+    for (let car in cars) {
+      if (!car.main_image) {
+        const [mainImage] = await db.query(
+          "SELECT image_url FROM CarImages WHERE id_car = ? AND is_main = 1 LIMIT 1",
+          [car.id_car]
+        );
+
+        if (mainImage.length > 0) {
+          car.main_image = mainImage[0].image_url;
+        }
+      }
+    }
+    res.status(200).json({
+      success: true,
+      cars,
+    });
+  } catch (error) {
+    console.error("Error al obtener los carros", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener los carros",
+    });
+  }
+});
+
+//obtiene la informacion de carro
+app.get("/api/cars/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Obtener información del carro
+    const [cars] = await db.query(`
+      SELECT c.*, cat.name as category_name 
+      FROM Cars c
+      INNER JOIN Categories cat ON c.id_category = cat.id_category
+      WHERE c.id_car = ?
+    `, [id]);
+    
+    if (cars.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Carro no encontrado"
+      });
+    }
+    
+    // Obtener todas las imágenes del carro
+    const [images] = await db.query(`
+      SELECT * FROM CarImages 
+      WHERE id_car = ? 
+      ORDER BY is_main DESC, created_at ASC
+    `, [id]);
+    
+    res.status(200).json({
+      success: true,
+      car: cars[0],
+      images
+    });
+  } catch (error) {
+    console.error("Error al obtener detalles del carro:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener detalles del carro"
+    });
+  }
+});
+
+// ========== ACTUALIZAR IMAGEN PRINCIPAL DEL CARRO ==========
+app.patch("/api/cars/:id/main-image", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { image_url } = req.body;
+    
+    await db.query(
+      "UPDATE Cars SET main_image = ? WHERE id_car = ?",
+      [image_url, id]
+    );
+    
+    res.status(200).json({
+      success: true,
+      message: "Imagen principal actualizada"
+    });
+  } catch (error) {
+    console.error("Error al actualizar imagen:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al actualizar imagen"
     });
   }
 });
