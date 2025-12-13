@@ -56,7 +56,13 @@
           </div>
 
           <div class="car-actions">
-            <button class="book-btn">Book Now</button>
+            <router-link
+              :to="`/confirm-reservation/${car.id_car}`"
+              class="book-btn"
+            >
+              Book Now
+            </router-link>
+
             <router-link :to="`/car/${car.id_car}`" class="details-btn">
               View Details
             </router-link>
@@ -163,10 +169,12 @@ const handleImageError = (e) => {
 /* Cars Grid */
 .cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  gap: 16px;
-  max-width: 1300px;
-  margin: 0 auto;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(200px, 1fr)
+  ); /* ← Sin max-width aquí */
+  gap: 20px;
+  width: 100%;
 }
 
 .car-card {
@@ -175,7 +183,7 @@ const handleImageError = (e) => {
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
-  max-width: 200px;
+  width: 100%;
 }
 
 .car-card:hover {
@@ -185,15 +193,17 @@ const handleImageError = (e) => {
 
 .car-image-container {
   width: 100%;
-  height: 120px;
+  height: 210px;
   overflow: hidden;
-  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .car-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
 }
 
 .car-details {
@@ -209,7 +219,6 @@ const handleImageError = (e) => {
 
 .car-specs {
   display: flex;
-  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -259,6 +268,10 @@ const handleImageError = (e) => {
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none; 
+  display: block;
+  text-align: center;
+  box-sizing: border-box; 
 }
 
 .book-btn:hover {
@@ -266,7 +279,7 @@ const handleImageError = (e) => {
 }
 
 .details-btn {
-  width: 90%;
+  width: 92%;
   padding: 8px;
   background: white;
   color: #dc4a45;
@@ -285,21 +298,30 @@ const handleImageError = (e) => {
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
   .cars-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .cars-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+  .category-view {
+    padding: 30px;
+  }
+
   .cars-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .car-image-container {
+    height: 130px;
   }
 }
 
@@ -307,9 +329,22 @@ const handleImageError = (e) => {
   .category-view {
     padding: 20px;
   }
-  
+
   .cars-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .car-details {
+    padding: 10px;
+  }
+
+  .car-details h3 {
+    font-size: 13px;
+  }
+
+  .car-image-container {
+    height: 110px;
   }
 }
 </style>

@@ -28,31 +28,40 @@ const routes = [
         component: () => import("../components/Dashboard.vue"),
       },
       {
-        path:"/reservation",
-        name:"Reservations",
-        component: () => import("../components/Reservations.vue")
+        path: "/reservation",
+        name: "Reservations",
+        component: () => import("../components/Reservations.vue"),
       },
       {
         path: "/settings",
         name: "Settings",
-        component: () => import("../components/Settings.vue")
+        component: () => import("../components/Settings.vue"),
       },
       {
         path: "/support",
         name: "Support",
-        component: () => import ("../components/Support.vue")
+        component: () => import("../components/Support.vue"),
       },
       {
         path: "/category/:type",
         name: "Category",
-        component: () => import ("../components/CategoryCars.vue")
+        component: () => import("../components/CategoryCars.vue"),
       },
       {
         path: "/car/:id",
         name: "CarDetail",
-        component: () => import ("../components/CarDetail.vue")
-      }
-
+        component: () => import("../components/CarDetail.vue"),
+      },
+      {
+        path: "/confirm-reservation/:id",
+        name: "ConfirmeReservation",
+        component: () => import("../components/ConfirmeReservation.vue"),
+      },
+      {
+        path: "/reservation-details/:id",
+        name: "ReservationDetails",
+        component: () => import("../components/ReservationDetails.vue"),
+      },
     ],
   },
 ];

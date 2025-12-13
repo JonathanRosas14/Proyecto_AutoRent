@@ -125,10 +125,6 @@ app.post("/api/login", async (req, res) => {
 });
 
 //ruta para actualizar el usuario
-
-// Agregar después de la ruta de login en tu app.js
-
-// ========== RUTA PARA ACTUALIZAR PERFIL DE USUARIO ==========
 app.put("/api/user/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -328,39 +324,45 @@ app.get("/api/cars/category/:categoryName", async (req, res) => {
 app.get("/api/cars/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Obtener información del carro
-    const [cars] = await db.query(`
+    const [cars] = await db.query(
+      `
       SELECT c.*, cat.name as category_name 
       FROM Cars c
       INNER JOIN Categories cat ON c.id_category = cat.id_category
       WHERE c.id_car = ?
-    `, [id]);
-    
+    `,
+      [id]
+    );
+
     if (cars.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Carro no encontrado"
+        message: "Carro no encontrado",
       });
     }
-    
+
     // Obtener todas las imágenes del carro
-    const [images] = await db.query(`
+    const [images] = await db.query(
+      `
       SELECT * FROM CarImages 
       WHERE id_car = ? 
       ORDER BY is_main DESC, created_at ASC
-    `, [id]);
-    
+    `,
+      [id]
+    );
+
     res.status(200).json({
       success: true,
       car: cars[0],
-      images
+      images,
     });
   } catch (error) {
     console.error("Error al obtener detalles del carro:", error);
     res.status(500).json({
       success: false,
-      message: "Error al obtener detalles del carro"
+      message: "Error al obtener detalles del carro",
     });
   }
 });
@@ -370,21 +372,204 @@ app.patch("/api/cars/:id/main-image", async (req, res) => {
   try {
     const { id } = req.params;
     const { image_url } = req.body;
-    
-    await db.query(
-      "UPDATE Cars SET main_image = ? WHERE id_car = ?",
-      [image_url, id]
-    );
-    
+
+    await db.query("UPDATE Cars SET main_image = ? WHERE id_car = ?", [
+      image_url,
+      id,
+    ]);
+
     res.status(200).json({
       success: true,
-      message: "Imagen principal actualizada"
+      message: "Imagen principal actualizada",
     });
   } catch (error) {
     console.error("Error al actualizar imagen:", error);
     res.status(500).json({
       success: false,
-      message: "Error al actualizar imagen"
+      message: "Error al actualizar imagen",
+    });
+  }
+});
+
+//ruta para la reservar
+
+app.post("/api/ConfirmeReservation", async (req, res) => {
+  try {
+    const {
+      id_user,
+      id_car,
+      pickUp_location,
+      dropOff_location,
+      pickUp_DateTime,
+      dropOff_DateTime,
+      total_days,
+      base_price,
+      taxes_fees,
+      total_cost,
+      driver_fullname,
+      driver_email,
+      driver_LicenseNumber,
+      payment_CardNumber,
+      payment_ExpiryDate,
+      payment_cvv,
+    } = req.body;
+
+    //Validar que los campos esten llenos
+
+    if (
+      !id_user ||
+      !id_car ||
+      !pickUp_location ||
+      !dropOff_location ||
+      !pickUp_DateTime ||
+      !dropOff_DateTime ||
+      !driver_fullname ||
+      !driver_email ||
+      !driver_LicenseNumber ||
+      !payment_CardNumber ||
+      !payment_ExpiryDate ||
+      !payment_cvv
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Todos los campos son requeridos",
+      });
+    }
+    // Verificar que el carro esté disponible
+    const [car] = await db.query(
+      "SELECT * FROM Cars WHERE id_car = ? AND status = 'Available'",
+      [id_car]
+    );
+
+    if (car.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El carro no está disponible",
+      });
+    }
+
+    const [reservationResult] = await db.query(
+      `INSERT INTO Reservations (
+        id_user, id_car, pickUp_location, dropOff_location,
+        pickUp_DateTime, dropOff_DateTime, total_days, base_price,
+        taxes_fees, total_cost, driver_fullname, driver_email,
+        driver_LicenseNumber, payment_CardNumber, payment_ExpiryDate,
+        payment_cvv
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id_user,
+        id_car,
+        pickUp_location,
+        dropOff_location,
+        pickUp_DateTime,
+        dropOff_DateTime,
+        total_days,
+        base_price,
+        taxes_fees,
+        total_cost,
+        driver_fullname,
+        driver_email,
+        driver_LicenseNumber,
+        payment_CardNumber,
+        payment_ExpiryDate,
+        payment_cvv,
+      ]
+    );
+    // Actualizar el estado del carro a 'Rented'
+    await db.query("UPDATE Cars SET status = 'Rented' WHERE id_car = ?", [
+      id_car,
+    ]);
+
+    res.status(201).json({
+      success: true,
+      message: "Reservación creada correctamente",
+      reservation_id: result.insertId,
+    });
+  } catch (error) {
+    console.error("Error al realizar la reserva", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error al realizar la reserva",
+      error: error.message,
+    });
+  }
+});
+
+
+// OBTENER RESERVACIONES DE UN USUARIO
+app.get("/api/reservations/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const [reservations] = await db.query(`
+      SELECT 
+        r.*,
+        c.name as car_name,
+        c.brand as car_brand,
+        c.main_image as car_image,
+        c.passengers,
+        c.luggage,
+        c.transmission,
+        cat.name as category_name
+      FROM Reservations r
+      INNER JOIN Cars c ON r.id_car = c.id_car
+      INNER JOIN Categories cat ON c.id_category = cat.id_category
+      WHERE r.id_user = ?
+      ORDER BY r.creation_date DESC
+    `, [userId]);
+    
+    res.status(200).json({
+      success: true,
+      reservations
+    });
+    
+  } catch (error) {
+    console.error("Error al obtener reservaciones:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener reservaciones"
+    });
+  }
+});
+
+// OBTENER DETALLES DE UNA RESERVACIÓN 
+app.get("/api/reservation/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [reservations] = await db.query(`
+      SELECT 
+        r.*,
+        c.name as car_name,
+        c.brand as car_brand,
+        c.main_image as car_image,
+        c.passengers,
+        c.luggage,
+        c.transmission,
+        cat.name as category_name
+      FROM Reservations r
+      INNER JOIN Cars c ON r.id_car = c.id_car
+      INNER JOIN Categories cat ON c.id_category = cat.id_category
+      WHERE r.id_reservation = ?
+    `, [id]);
+    
+    if (reservations.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Reservación no encontrada"
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      reservation: reservations[0]
+    });
+    
+  } catch (error) {
+    console.error("Error al obtener reservación:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener reservación"
     });
   }
 });
