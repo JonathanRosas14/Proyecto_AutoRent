@@ -108,7 +108,11 @@
             </div>
             
             <button class="reserve-btn">
+              <router-link
+              :to="`/confirm-reservation/${car.id_car}`"
+            >
               ❤️ Reserve This Car
+            </router-link>
             </button>
           </div>
         </div>
@@ -359,6 +363,7 @@ const fetchCarDetails = async () => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none; 
 }
 
 .reserve-btn:hover {

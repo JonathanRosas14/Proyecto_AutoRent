@@ -295,7 +295,7 @@ const handleReservation = async () => {
       return
     }
 
-    const response = await fetch('http://localhost:3000/api/reservation', {
+    const response = await fetch('http://localhost:3000/api/ConfirmeReservation', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -454,8 +454,8 @@ app.post("/api/ConfirmeReservation", async (req, res) => {
         pickUp_DateTime, dropOff_DateTime, total_days, base_price,
         taxes_fees, total_cost, driver_fullname, driver_email,
         driver_LicenseNumber, payment_CardNumber, payment_ExpiryDate,
-        payment_cvv
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        payment_cvv, status, creation_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         id_user,
         id_car,
@@ -473,6 +473,7 @@ app.post("/api/ConfirmeReservation", async (req, res) => {
         payment_CardNumber,
         payment_ExpiryDate,
         payment_cvv,
+        'Confirmed'
       ]
     );
     // Actualizar el estado del carro a 'Rented'
@@ -483,7 +484,7 @@ app.post("/api/ConfirmeReservation", async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Reservación creada correctamente",
-      reservation_id: result.insertId,
+      reservation_id: reservationResult.insertId,
     });
   } catch (error) {
     console.error("Error al realizar la reserva", error);
@@ -503,7 +504,19 @@ app.get("/api/reservations/user/:userId", async (req, res) => {
     
     const [reservations] = await db.query(`
       SELECT 
-        r.*,
+        r.id_reservation,
+        r.id_user,
+        r.id_car,
+        r.pickUp_location,
+        r.dropOff_location,
+        r.pickUp_DateTime,
+        r.dropOff_DateTime,
+        r.total_days,
+        r.base_price,
+        r.taxes_fees,
+        r.total_cost,
+        r.status,
+        r.creation_date,
         c.name as car_name,
         c.brand as car_brand,
         c.main_image as car_image,
@@ -518,9 +531,17 @@ app.get("/api/reservations/user/:userId", async (req, res) => {
       ORDER BY r.creation_date DESC
     `, [userId]);
     
+    // Convertir campos numéricos a números
+    const convertedReservations = reservations.map(r => ({
+      ...r,
+      base_price: parseFloat(r.base_price),
+      taxes_fees: parseFloat(r.taxes_fees),
+      total_cost: parseFloat(r.total_cost)
+    }));
+    
     res.status(200).json({
       success: true,
-      reservations
+      reservations: convertedReservations
     });
     
   } catch (error) {
@@ -539,7 +560,25 @@ app.get("/api/reservation/:id", async (req, res) => {
     
     const [reservations] = await db.query(`
       SELECT 
-        r.*,
+        r.id_reservation,
+        r.id_user,
+        r.id_car,
+        r.pickUp_location,
+        r.dropOff_location,
+        r.pickUp_DateTime,
+        r.dropOff_DateTime,
+        r.total_days,
+        r.base_price,
+        r.taxes_fees,
+        r.total_cost,
+        r.driver_fullname,
+        r.driver_email,
+        r.driver_LicenseNumber,
+        r.payment_CardNumber,
+        r.payment_ExpiryDate,
+        r.payment_cvv,
+        r.status,
+        r.creation_date,
         c.name as car_name,
         c.brand as car_brand,
         c.main_image as car_image,
@@ -559,10 +598,16 @@ app.get("/api/reservation/:id", async (req, res) => {
         message: "Reservación no encontrada"
       });
     }
+
+    // Convertir campos numéricos a números
+    const reservation = reservations[0];
+    reservation.base_price = parseFloat(reservation.base_price);
+    reservation.taxes_fees = parseFloat(reservation.taxes_fees);
+    reservation.total_cost = parseFloat(reservation.total_cost);
     
     res.status(200).json({
       success: true,
-      reservation: reservations[0]
+      reservation
     });
     
   } catch (error) {

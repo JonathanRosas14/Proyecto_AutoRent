@@ -1,6 +1,6 @@
 <template>
   <div class="confirmation-page">
-    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="loading"></div>
 
     <template v-else-if="reservation">
       <!-- Success Header -->
@@ -111,16 +111,21 @@ onMounted(async () => {
 
 const fetchReservationDetails = async () => {
   try {
+    console.log('Fetching reservation:', route.params.id)
     const response = await fetch(`http://localhost:3000/api/reservation/${route.params.id}`)
+    console.log('Response status:', response.status)
     const data = await response.json()
+    console.log('Response data:', data)
     
     if (data.success) {
       reservation.value = data.reservation
+      console.log('Reservation loaded:', reservation.value)
     } else {
+      console.error('Error en respuesta:', data.message)
       router.push('/reservation')
     }
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error fetching reservation:', error)
     router.push('/reservation')
   } finally {
     loading.value = false

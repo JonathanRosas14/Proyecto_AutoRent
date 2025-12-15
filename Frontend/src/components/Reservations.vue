@@ -7,6 +7,12 @@
 
     <div class="tabs">
       <button 
+        :class="{ active: activeTab === 'all' }"
+        @click="activeTab = 'all'"
+      >
+        All
+      </button>
+      <button 
         :class="{ active: activeTab === 'upcoming' }"
         @click="activeTab = 'upcoming'"
       >
@@ -23,12 +29,6 @@
         @click="activeTab = 'past'"
       >
         Past
-      </button>
-      <button 
-        :class="{ active: activeTab === 'all' }"
-        @click="activeTab = 'all'"
-      >
-        All
       </button>
     </div>
 
@@ -118,7 +118,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const reservations = ref([])
 const loading = ref(true)
-const activeTab = ref('upcoming')
+const activeTab = ref('all')
 
 onMounted(async () => {
   await fetchReservations()
@@ -138,6 +138,9 @@ const fetchReservations = async () => {
     
     if (data.success) {
       reservations.value = data.reservations
+      console.log('Reservaciones cargadas:', reservations.value)
+    } else {
+      console.error('Error en respuesta:', data)
     }
   } catch (error) {
     console.error('Error al cargar reservaciones:', error)
@@ -159,11 +162,11 @@ const filteredReservations = computed(() => {
     
     switch(activeTab.value) {
       case 'upcoming':
-        return pickUp > now && (r.status === 'Pending' || r.status === 'Confirmed')
+        return pickUp > now
       case 'current':
-        return pickUp <= now && dropOff >= now && r.status === 'Confirmed'
+        return pickUp <= now && dropOff >= now
       case 'past':
-        return dropOff < now || r.status === 'Completed' || r.status === 'Cancelled'
+        return dropOff < now
       default:
         return true
     }
